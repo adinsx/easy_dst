@@ -1,7 +1,7 @@
 use super::Named;
 #[test]
 fn const_primitive() {
-    named!(const FIVE = (i32(5), b"five"));
+    named!(const FIVE = <i32>(5, b"five"));
     assert_eq!(format!("{FIVE:?}"), r#"easy_dst::Named<i32>(5, "five")"#);
 }
 
@@ -12,10 +12,19 @@ fn const_custom() {
         #[allow(dead_code)]
         num: i32,
     }
-    named!(const FIVE = (TestStruct (TestStruct{num: 5}), b"five"));
+    named!(const FIVE = (TestStruct{num: 5}, b"five"));
     assert_eq!(
         format!("{FIVE:?}"),
         r#"easy_dst::Named<easy_dst::tests::const_custom::TestStruct>(TestStruct { num: 5 }, "five")"#
+    );
+}
+
+#[test]
+fn const_slice() {
+    named!(const FIVE = <[u32; _]>([1,2,3,4,5], b"five"));
+    assert_eq!(
+        format!("{FIVE:?}"),
+        r#"easy_dst::Named<[u32; 5]>([1, 2, 3, 4, 5], "five")"#
     );
 }
 

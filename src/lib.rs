@@ -16,6 +16,7 @@ named!($literal as $ty | $ty($tt)), $literal)
 */
 
 //fn stuff(input: TokenStream) -> TokenStream {}
+// todo: Improve initialization. Probably via macro. impl all the stuff that can be. fix derives if need be
 
 #[derive(Clone, Hash)]
 pub(crate) struct SizedUnsized<S, U: ?Sized> {
@@ -54,39 +55,31 @@ impl<'a, T> Named<'_, T> {
     }
 }
 
-// todo: Improve initialization. Probably via macro. impl all the stuff that can be. fix derives if need be
-
 #[macro_export]
 macro_rules! named {
-    (@strip_as $lhs:tt $(as)? $rhs:tt) => {$lhs $rhs};
-
-    (@type_of _:literal as $datatype:ty) => {$datatype};
-
-    (@type_of $datatype:ty) => {$datatype};
-
-    (@const_type $datatype:ty, $name:literal) => {&($datatype, [u8; $name.len()])};
-
-    (@named_expr $data: tt as $datatype:ty, $name:literal) => {
-        {
-            #[allow(clippy::unnecessary_cast)]
-            const TMP: named!(@const_type $datatype, $name) = &($data as $datatype, *$name);
-            Named::new(TMP)
-        }
+    (@tmp_type $sized_type:ty, $name:literal) => {
+        &($sized_type, [u8; $name.len()])
     };
 
-    (@named_expr $datatype:tt $data:tt, $name:literal) => {
-        {
-            const TMP: named!(@const_type $datatype, $name) = &($datatype $data, *$name);
+    (const $var: ident = <[$sized_type: ty; _]>($sized_data: tt, $name: literal)) =>{
+        const $var: Named<[$sized_type; $sized_data.len()]> = {
+            const TMP: named!(@tmp_type [$sized_type; $sized_data.len()], $name) = &($sized_data, *$name);
             Named::new(TMP)
-        }
+        };
     };
-    //($data: tt as $datatype:ty, $name:literal)
-    /*(const $var: ident = $data: expr, $name: literal) => {
-            const $var: Named<named!(@type_of $data)> = named!(@named_expr $data, $name);
-        };*/
 
-    (const $var: ident = ($datatype:tt $data:tt, $name:literal)) => {
-        const $var: Named<$datatype> = named!(@named_expr $data as $datatype, $name);
+    (const $var: ident = <$sized_type: ty>($sized_data: expr, $name: literal)) => {
+        const $var: Named<$sized_type> = {
+    const TMP: named!(@tmp_type $sized_type, $name) = &($sized_data, *$name);
+            Named::new(TMP)
+        };
+    };
+
+    (const $var: ident = ($sized_type: tt $sized_data: tt, $name: literal)) => {
+        const $var: Named<$sized_type> = {
+    const TMP: named!(@tmp_type $sized_type, $name) = &($sized_type $sized_data, *$name);
+            Named::new(TMP)
+        };
     };
 }
 
