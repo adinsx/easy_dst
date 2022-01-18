@@ -11,7 +11,7 @@ use std::{
 };
 
 // todo: Add non-const initialization to named! macro. impl all the stuff that can be. fix derives if need be.
-// generalize the code to all builtin dst types: str (PoC done), dyn, slice (should be easily to generalize the str code to work on all slices)
+// generalize the code to all builtin dst types: str (PoC done), dyn, slice (should be easy to generalize the str code to work on all slices)
 
 #[derive(Clone, Hash)]
 struct SizedUnsized<S, U: ?Sized> {
