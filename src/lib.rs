@@ -9,17 +9,11 @@ use std::{
     fmt::{Debug, Formatter},
     ops::Deref,
 };
-/*
-named!(const | static $ident = ($literal as $ty | $ty($tt)), $literal)
-or
-named!($literal as $ty | $ty($tt)), $literal)
-*/
 
-//fn stuff(input: TokenStream) -> TokenStream {}
-// todo: Improve initialization. Probably via macro. impl all the stuff that can be. fix derives if need be
+// todo: Add non-const initialization to named! macro. impl all the stuff that can be. fix derives if need be
 
 #[derive(Clone, Hash)]
-pub(crate) struct SizedUnsized<S, U: ?Sized> {
+struct SizedUnsized<S, U: ?Sized> {
     sized_data: S,
     unsized_data: U,
 }
@@ -55,6 +49,17 @@ impl<'a, T> Named<'_, T> {
     }
 }
 
+pub const fn as_bytes_sized<const N: usize>(slice: &str) -> [u8; N] {
+    let mut ret = [0u8; N];
+    let mut index = 0usize;
+    let slice = slice.as_bytes();
+    while index < slice.len() {
+        ret[index] = slice[index];
+        index += 1;
+    }
+    ret
+}
+
 #[macro_export]
 macro_rules! named {
     (@tmp_type $sized_type:ty, $name:literal) => {
@@ -63,22 +68,22 @@ macro_rules! named {
 
     (const $var: ident = <[$sized_type: ty; _]>($sized_data: tt, $name: literal)) =>{
         const $var: Named<[$sized_type; $sized_data.len()]> = {
-            const TMP: named!(@tmp_type [$sized_type; $sized_data.len()], $name) = &($sized_data, *$name);
-            Named::new(TMP)
+            const TMP: named!(@tmp_type [$sized_type; $sized_data.len()], $name) = &($sized_data, $crate::as_bytes_sized($name));
+            $crate::Named::new(TMP)
         };
     };
 
     (const $var: ident = <$sized_type: ty>($sized_data: expr, $name: literal)) => {
         const $var: Named<$sized_type> = {
-    const TMP: named!(@tmp_type $sized_type, $name) = &($sized_data, *$name);
-            Named::new(TMP)
+            const TMP: named!(@tmp_type $sized_type, $name) = &($sized_data, $crate::as_bytes_sized($name));
+            $crate::Named::new(TMP)
         };
     };
 
     (const $var: ident = ($sized_type: tt $sized_data: tt, $name: literal)) => {
         const $var: Named<$sized_type> = {
-    const TMP: named!(@tmp_type $sized_type, $name) = &($sized_type $sized_data, *$name);
-            Named::new(TMP)
+            const TMP: named!(@tmp_type $sized_type, $name) = &($sized_type $sized_data, $crate::as_bytes_sized($name));
+            $crate::Named::new(TMP)
         };
     };
 }
