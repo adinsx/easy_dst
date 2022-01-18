@@ -15,10 +15,10 @@ As an example, the following macro invocation:
 Expands to the following rust:
 ```rust
 const FIVE: Named<[u32; [1, 2, 3, 4, 5].len()]> = {
-            const TMP: &([u32; [1, 2, 3, 4, 5].len()], [u8; "five".len()]) =
-                &([1, 2, 3, 4, 5], crate::as_bytes_sized("five"));
-            crate::Named::new(TMP)
-        };
+    const TMP: &([u32; [1, 2, 3, 4, 5].len()], [u8; "five".len()]) =
+    	&([1, 2, 3, 4, 5], crate::as_bytes_sized("five"));
+    crate::Named::new(TMP)
+};
 ```
 Which compiles to the following asm (on x64 linux):
 ```asm
