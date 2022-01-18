@@ -10,7 +10,8 @@ use std::{
     ops::Deref,
 };
 
-// todo: Add non-const initialization to named! macro. impl all the stuff that can be. fix derives if need be
+// todo: Add non-const initialization to named! macro. impl all the stuff that can be. fix derives if need be.
+// generalize the code to all builtin dst types: str (PoC done), dyn, slice (should be easily to generalize the str code to work on all slices)
 
 #[derive(Clone, Hash)]
 struct SizedUnsized<S, U: ?Sized> {
@@ -87,6 +88,5 @@ macro_rules! named {
         };
     };
 }
-
 #[cfg(test)]
 mod tests;
