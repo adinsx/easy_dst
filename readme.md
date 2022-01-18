@@ -1,6 +1,6 @@
 # easy_dst
 
-I want to solve a couple of problems with this library:
+I want this library to solve a couple of problems:
 1. Make custom dynamically sized types (hereafter DSTs) *much* more ergonomic to define and instantiate.
 2. Make such DSTs available on the stack (or heap, but doing *that* isn't currently *too* difficult without help of a library).
 3. Make such DSTs available in const context.
