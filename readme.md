@@ -13,7 +13,7 @@ As an example, the following macro invocation:
 `named!(const FIVE = <[u32; _]>([1,2,3,4,5], "five"));`
 
 Expands to the following rust:
-```
+```rust
 const FIVE: Named<[u32; [1, 2, 3, 4, 5].len()]> = {
             const TMP: &([u32; [1, 2, 3, 4, 5].len()], [u8; "five".len()]) =
                 &([1, 2, 3, 4, 5], crate::as_bytes_sized("five"));
@@ -21,7 +21,7 @@ const FIVE: Named<[u32; [1, 2, 3, 4, 5].len()]> = {
         };
 ```
 Which compiles to the following asm (on x64 linux):
-```
+```asm
 .Lanon.8afc1e9bec810034dafd45c6854f1dd9.0:
 	.ascii	"\001\000\000\000\002\000\000\000\003\000\000\000\004\000\000\000\005\000\000\000five"
 	.size	.Lanon.8afc1e9bec810034dafd45c6854f1dd9.0, 24
